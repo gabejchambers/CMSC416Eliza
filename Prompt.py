@@ -34,4 +34,11 @@ def respond(keyword):
 
 ezpz B)
 '''
-    
+import Eliza 
+
+
+while True:
+    print('this is where eliza would talk') 
+    userInput = input()
+    if userInput == ("stop" or "Stop"):
+        break
