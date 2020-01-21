@@ -7,7 +7,7 @@ def respond(keyword):
 
 '''
 
-def askName():
+def askName(): #need parse this in case they say ex 'my name is Rob' isntead of just 'Rob'
     print("Hi, I am Eliza, a psychotherapist. What is yor name?")
 
 def initiateConversation(name):

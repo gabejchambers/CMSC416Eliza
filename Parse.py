@@ -24,5 +24,22 @@ def parse(userInput):
 
     return tokens[0] #only for testing
 
+'''
+def findSentenceTemplate(sentence):
+    if re.search(r'I\s(.*?)$', sentence) is not None:
+'''
+
+#Strips trailing punctuation, including multiple in case of elipses or '!!!' emphasis
+def stripTrailingPunctuation(sentence):
+    if re.search(r'(.*?)[^a-zA-Z\d\s:]+$', sentence) is not None:
+        stripped = re.search(r'(.*?)[^a-zA-Z\d\s:]+$', sentence)
+        return stripped.group(1)
+    return sentence
 
 
+#finds person's name, where given alone or in a sentence.
+def extractName(name):
+    if re.search(r'\b[i|I][s|S]\b', name) is not None: #finds incetances of the word "is"
+        name = re.search(r'\b[i|I][s|S]\b\s(.*?)$', name) #assigns name to string following is ex: my name is Rob -> Rob
+        return name.group(1)
+    return name #return standalone name

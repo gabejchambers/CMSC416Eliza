@@ -41,13 +41,15 @@ import Respond
 #initial set up
 Respond.askName()
 name = input()
+name = Parse.stripTrailingPunctuation(name)
+name = Parse.extractName(name)
 Respond.initiateConversation(name)
 
 #conversation loop
 while True:   
     userInput = input()
     #to exit loop:
-    if userInput == ("stop" or "Stop"):
-        break
-    keyword = Parse.parse(userInput) #find keyword in user input
-    Respond.respond(keyword) #generate response using keyword
+    if userInput == ("stop" or "Stop"): break
+    stripped = Parse.stripTrailingPunctuation(userInput)
+    keyphrase = Parse.parse(userInput) #find key phrase in user input
+    Respond.respond(keyphrase) #generate response using keyphrase
