@@ -35,10 +35,19 @@ def respond(keyword):
 ezpz B)
 '''
 import Eliza 
+import Parse 
+import Respond 
 
+#initial set up
+Respond.askName()
+name = input()
+Respond.initiateConversation(name)
 
-while True:
-    print('this is where eliza would talk') 
+#conversation loop
+while True:   
     userInput = input()
+    #to exit loop:
     if userInput == ("stop" or "Stop"):
         break
+    keyword = Parse.parse(userInput) #find keyword in user input
+    Respond.respond(keyword) #generate response using keyword

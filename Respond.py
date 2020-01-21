@@ -7,3 +7,11 @@ def respond(keyword):
 
 '''
 
+def askName():
+    print("Hi, I am Eliza, a psychotherapist. What is yor name?")
+
+def initiateConversation(name):
+    print("Nice to meet you " + str(name) + ". What can I help you with today?")
+
+def respond(keyword):
+    print("Tell me more about " + str(keyword) + ".")
