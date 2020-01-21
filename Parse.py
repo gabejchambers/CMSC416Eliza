@@ -5,70 +5,50 @@ def parse(userInput):
 '''
 import re
 
-def parse(userInput):
-    tokens = re.split(r'\s+', userInput)
-
-    #finds an I and sends clause after it as keyword
-    #need to be done:
-    #if multiple I's (I think I am crazy), sends everything after the initial I. probly use that clause, but switch 'I's to 'you's -> 'tell me more about you crazy' not perfect idk
-    #doesnt recognize I'm
-    #verb after I needs to be handled. sometimes it would be okay to bring (I think I am crazy -> Why do you think you are crazy)
-    #   but often wouldnt make sense (I am sad !-> tell me more about am sad), actually, i think "am" is the only problomatic verb.
-
-    Itoken = re.search(r'I\s(.*?)$', userInput)
-    if Itoken is not None:
-        #print(Itoken.group(0)) #TESTING group(0) whole sentence
-        #print(Itoken.group(1)) #everything after the I
-        #print("^was taken out")
-        return Itoken.group(1)
-
-    return tokens[0] #only for testing
-
 
 def findSentenceTemplate(sentence):
     if re.search(r'\bI\s(.*?)$', sentence) is not None:
         return IPhrase(sentence)
-    elif re.search(r'\b[i\'m|I\'m|Im|im]\s(.*?)$', sentence) is not None:
-        return ImPhrase(sentence)
     return "unknown"
 
 
-#TODO: verb after I.
-    #am -> being
-    #ends in e? -> remove e, add ing. ex: strive -> striving
-    #else add ing
-    #
-    #recognize I'm
+#TODO: multiple I statments "I think I am going crazy"
+#TODO: chamge up the pass phrased. randomly: "I save money" -> "saving money" or "your savings".
+#Note: the "your savings" format wont work for verb "have", or "am". "tell me more about your havings/beings" is no good
 def IPhrase(sentence):
     token = re.search(r'\b[i|I]\s(.*?)$', sentence)
     phrase = token.group(1)
-    verb = re.search(r'\b\w*\b',token.group(1)) #verb.group(0) is the verb
-    phrase = re.search(r'\b\w*\b\s(.*?)$',token.group(1)) #phrase without verb
+    phrase = verbPhraseToGerundPhrase(phrase)
+    return phrase
+
+
+def verbPhraseToGerundPhrase(phrase):#where phrase is the phrase with old verb
+    verb = re.search(r'\b\w*\b', phrase) #verb.group(0) is the verb
+    phrase = re.search(r'\b\w*\b\s(.*?)$',phrase) #phrase without verb
     verb = verb.group(0) #cuts verb to simple string
-    #fails on words like "hit", outputs "hiting" not "hitting"
     if phrase is not None:
         phrase = phrase.group(1) #cuts phrase down to a simple string
     else:
         phrase = ""
+    gerund = verbToGerund(verb)
+    phrase = gerund + ' ' + phrase
+    return phrase
+
+
+#TODO fails on words like "hit", outputs "hiting" not "hitting"
+def verbToGerund(verb):
     #if verb end in E:
     if re.search(r'\w*e$', verb) is not None:
         verb = re.search(r'(\w*)e$', verb)
         verb = verb.group(1)
-        verb = verb + 'ing'
-        phrase = verb + ' ' + phrase
+        gerund = verb + 'ing'
     #if verb is am:
     elif verb == 'am':
-        phrase = 'being ' + phrase
-    #if verb is neither:
+        gerund = 'being'
+    #if verb does not end in e:
     else:
-        verb = verb + 'ing'
-        phrase = verb + ' ' + phrase
-    return phrase
-
-
-def ImPhrase(sentence):
-    token = re.search(r'\b[i\'m|I\'m|Im|im]\s(.*?)$', sentence)
-    return "being " + token.group(1)
+        gerund = verb + 'ing'
+    return gerund
 
 
 #Strips trailing punctuation, including multiple in case of elipses or '!!!' emphasis
