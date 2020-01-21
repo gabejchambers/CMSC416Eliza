@@ -50,6 +50,6 @@ while True:
     userInput = input()
     #to exit loop:
     if userInput == ("stop" or "Stop"): break
-    stripped = Parse.stripTrailingPunctuation(userInput)
-    keyphrase = Parse.parse(userInput) #find key phrase in user input
+    sentence = Parse.stripTrailingPunctuation(userInput)
+    keyphrase = Parse.findSentenceTemplate(sentence) #find key phrase in user input
     Respond.respond(keyphrase) #generate response using keyphrase

@@ -13,5 +13,9 @@ def askName(): #need parse this in case they say ex 'my name is Rob' isntead of 
 def initiateConversation(name):
     print("Nice to meet you " + str(name) + ". What can I help you with today?")
 
-def respond(keyword):
-    print("Tell me more about " + str(keyword) + ".")
+def respond(keyphrase):
+    if keyphrase == "unknown":
+        print("I don't quite understand. Could you try to rephrase that?")
+        return
+    print("Tell me more about " + str(keyphrase) + ".")
+    return
