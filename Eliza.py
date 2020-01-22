@@ -1,6 +1,6 @@
 import re, random
 
-#NOTE lowercase i followed by space in any word messes a lot up
+
 templates = [
     #I was
     [r'(\bi\swas\s)(?!.*\1)(.*?)$',
@@ -47,10 +47,13 @@ templates = [
 
 
 #dictionary of personal pronouns and first person common verbs to flip to second person in response:
+#TODO: must check split() tokens against this, right now if these are in the middle of a word it fucks it
+    #i.e. parameter -> parareeter SMH
 flip = {
     'am' : 'are',
     'my' : 'your',
-    'i ' : 'you'
+    'i' : 'you',
+    'me' : 'you'
 }
 
 
@@ -97,9 +100,9 @@ def respond(sentence):
         if phrase is not None:
             phrase = phrase.group(numGroups(phrase))
             respond = random.choice(responseOptions)
+            #TODO: split() phrase into tokens and check each token against the flip table,
+            #  this way both leading 'i', ending, and middle will be clecked and you can get rid of the whitespaces in the flip table
             for firstPerson, secondPerson in flip.items():
-                #if re.search(firstPerson, phrase) is not None:
-
                 phrase = phrase.replace(firstPerson, secondPerson)
             respond = respond.replace("INSERT", phrase)
             return respond
