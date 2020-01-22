@@ -100,17 +100,19 @@ def respond(sentence):
         if phrase is not None:
             phrase = phrase.group(numGroups(phrase))
             respond = random.choice(responseOptions)
-            #TODO: split() phrase into tokens and check each token against the flip table,
-            #  this way both leading 'i', ending, and middle will be clecked and you can get rid of the whitespaces in the flip table
-            for firstPerson, secondPerson in flip.items():
-                phrase = phrase.replace(firstPerson, secondPerson)
+            tokens = re.split(r'\s+', phrase)
+            for index, token in enumerate(tokens):
+                for firstPerson, secondPerson in flip.items():
+                    if token == firstPerson:
+                        tokens[index] = secondPerson
+            phrase = ' '.join(tokens)
             respond = respond.replace("INSERT", phrase)
             return respond
 
 
 
 def askName(): #need parse this in case they say ex 'my name is Rob' isntead of just 'Rob'
-    print("Hi, I am Eliza, a psychotherapist. What is yor name?")
+    print("Hi, I am Eliza, a psychotherapist. What is your name?")
 
 
 
