@@ -9,7 +9,7 @@ import re
 #TODO: check multiple templates, go with whatever is last. ex: "I remember when my dad died" -> "your dad died", not "remembering when my dad died"
 #looking for personal pronouns seems key.
 def findSentenceTemplate(sentence):
-    if re.search(r'(\bI\s)(.*?)$', sentence) is not None:
+    if re.search(r'(\bI\s)(?!.*\1)(.*?)$', sentence) is not None:
         return IPhrase(sentence)
     return "unknown"
 
@@ -19,6 +19,8 @@ def findSentenceTemplate(sentence):
 #Note: the "your savings" format wont work for verb "have", or "am". "tell me more about your havings/beings" is no good
 #TODO: fuck, adverbs kill this system. "I really hate myself" will break it. maybe check if word after "I" ends in "ly", if so it is a adverb, check next?
     #only 55 of these, maybe greenlight the common ones and fuck the less common ones
+#TODO: "I do not like eggs" breaks. "how do you feel about doing not like eggs" is BS
+#TODO: "I can verb" and "I can not verb" verb break it. ie "I can not believe Jake's behavior"
 def IPhrase(sentence):
     token = re.search(r'(\bI\s)(?!.*\1)(.*?)$', sentence)
     phrase = token.group(numGroups(token))
@@ -26,6 +28,8 @@ def IPhrase(sentence):
     return phrase
 
 
+#TODO fails on "verb gerund", ex "I am lying to him" -> "being lying to him". 
+    #recognize gerunds in phrase, go with them instead. ex -> "lying to him" | simply, "lying"
 def verbPhraseToGerundPhrase(phrase):#where phrase is the phrase with old verb
     verb = re.search(r'\b\w*\b', phrase) #verb.group(0) is the verb
     phrase = re.search(r'\b\w*\b\s(.*?)$',phrase) #phrase without verb
@@ -63,7 +67,6 @@ def stripTrailingPunctuation(sentence):
     return sentence
 
 
-#TODO allow "I am Gabe"
 #finds person's name, where given alone or in a sentence.
 def extractName(name):
     if re.search(r'\b[i|I][s|S]\b', name) is not None: #finds incetances of the word "is"
