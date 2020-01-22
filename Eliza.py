@@ -3,7 +3,7 @@ import re, random
 
 templates = [
     #I
-    [r'.*?\b[I|i]\s(.*)',
+    [r'(\bi\s)(?!.*\1)(.*?)$',
         #responses:
         [
             'Tell me more about how you INSERT.',
@@ -14,8 +14,8 @@ templates = [
     [r'.*?\b[M|m]y\s(.*\b)',
         #responses:
         [
-            'You seem to think a lot about INSERT.',
-            'Why is INSERT so important to you?'
+            'You seem to think a lot about your INSERT.',
+            'Why is your INSERT so important to you?'
         ]
     ],#end my
     #one or two words (more acurately 1 or 0 spaces)
@@ -36,6 +36,8 @@ templates = [
     ]#end catch all
 ]#end list
 
+
+
 def stripPunctuation(sentence):
     if re.search(r'(.*?)[^a-zA-Z\d\s:]+$', sentence) is not None:
         stripped = re.search(r'(.*?)[^a-zA-Z\d\s:]+$', sentence)
@@ -43,26 +45,62 @@ def stripPunctuation(sentence):
     return sentence
 
 
+
 def toLower(sentence):
     return sentence.lower()
 
 
+
 def formatSentence(sentence):
     return stripPunctuation(toLower(str(sentence)))
+
+
+
+#finds person's name, where given alone or in a sentence.
+def extractName(name):
+    name = stripPunctuation(name)
+    if re.search(r'\b[i|I][s|S]\b', name) is not None: #finds incetances of the word "is"
+        name = re.search(r'\b[i|I][s|S]\b\s(.*?)$', name) #assigns name to string following is ex: my name is Rob -> Rob
+        return name.group(1)
+    elif re.search(r'\bam\b', name) is not None: #finds incetances of the word "am"
+        name = re.search(r'\bam\b\s(.*?)$', name) #assigns name to string following am ex: I am Rob -> Rob
+        return name.group(1)
+    return name #return standalone name
+
+
+
+#returns num of groups a token has bc they confuse me 
+def numGroups(token):
+    return len(token.groups())
+
+
 
 def respond(sentence):
     for regex, responseOptions in templates:
         phrase = re.search(regex, sentence)
         if phrase is not None:
             respond = random.choice(responseOptions)
-            respond = respond.replace("INSERT", phrase.group(1))
+            respond = respond.replace("INSERT", phrase.group(numGroups(phrase)))
             return respond
 
 
 
+def askName(): #need parse this in case they say ex 'my name is Rob' isntead of just 'Rob'
+    print("Hi, I am Eliza, a psychotherapist. What is yor name?")
 
 
-print('What can I help you with today?')
+
+def initiateConversation(name):
+    print("Nice to meet you " + str(name) + ". What can I help you with today?")
+
+
+
+#initial set up
+askName()
+name = input()
+name = extractName(name)
+initiateConversation(name)
+
 while True:
     userInput = input()
     #to exit loop:
