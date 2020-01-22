@@ -6,8 +6,10 @@ def parse(userInput):
 import re
 
 
+#TODO: check multiple templates, go with whatever is last. ex: "I remember when my dad died" -> "your dad died", not "remembering when my dad died"
+#looking for personal pronouns seems key.
 def findSentenceTemplate(sentence):
-    if re.search(r'\bI\s(.*?)$', sentence) is not None:
+    if re.search(r'(\bI\s)(.*?)$', sentence) is not None:
         return IPhrase(sentence)
     return "unknown"
 
@@ -15,9 +17,11 @@ def findSentenceTemplate(sentence):
 #TODO: multiple I statments "I think I am going crazy"
 #TODO: chamge up the pass phrased. randomly: "I save money" -> "saving money" or "your savings".
 #Note: the "your savings" format wont work for verb "have", or "am". "tell me more about your havings/beings" is no good
+#TODO: fuck, adverbs kill this system. "I really hate myself" will break it. maybe check if word after "I" ends in "ly", if so it is a adverb, check next?
+    #only 55 of these, maybe greenlight the common ones and fuck the less common ones
 def IPhrase(sentence):
-    token = re.search(r'\b[i|I]\s(.*?)$', sentence)
-    phrase = token.group(1)
+    token = re.search(r'(\bI\s)(?!.*\1)(.*?)$', sentence)
+    phrase = token.group(numGroups(token))
     phrase = verbPhraseToGerundPhrase(phrase)
     return phrase
 
@@ -59,11 +63,18 @@ def stripTrailingPunctuation(sentence):
     return sentence
 
 
-#TODO maybe allow "my name is Rob"
 #TODO allow "I am Gabe"
 #finds person's name, where given alone or in a sentence.
 def extractName(name):
     if re.search(r'\b[i|I][s|S]\b', name) is not None: #finds incetances of the word "is"
         name = re.search(r'\b[i|I][s|S]\b\s(.*?)$', name) #assigns name to string following is ex: my name is Rob -> Rob
         return name.group(1)
+    elif re.search(r'\bam\b', name) is not None: #finds incetances of the word "am"
+        name = re.search(r'\bam\b\s(.*?)$', name) #assigns name to string following am ex: I am Rob -> Rob
+        return name.group(1)
     return name #return standalone name
+
+
+#returns num of groups a token has bc they confuse me 
+def numGroups(token):
+    return len(token.groups())

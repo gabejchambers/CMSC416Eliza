@@ -34,7 +34,6 @@ def respond(keyword):
 
 ezpz B)
 '''
-import Eliza 
 import Parse 
 import Respond 
 
