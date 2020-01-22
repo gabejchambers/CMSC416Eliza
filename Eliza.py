@@ -1,7 +1,15 @@
 import re, random
 
-
+#NOTE lowercase i followed by space in any word messes a lot up
 templates = [
+    #I was
+    [r'(\bi\swas\s)(?!.*\1)(.*?)$',
+        #responses:
+        [
+            'Tell me more about how you were INSERT.',
+            'Why do you think you were INSERT?'
+        ]
+    ],#end I 
     #I
     [r'(\bi\s)(?!.*\1)(.*?)$',
         #responses:
@@ -14,8 +22,9 @@ templates = [
     [r'.*?\b[M|m]y\s(.*\b)',
         #responses:
         [
-            'You seem to think a lot about your INSERT.',
-            'Why is your INSERT so important to you?'
+            'Why do you think your INSERT?',
+            'Why is it so important to you that your INSERT?',
+            'How does it make you feel that your INSERT?'
         ]
     ],#end my
     #one or two words (more acurately 1 or 0 spaces)
@@ -36,6 +45,13 @@ templates = [
     ]#end catch all
 ]#end list
 
+
+#dictionary of personal pronouns and first person common verbs to flip to second person in response:
+flip = {
+    'am' : 'are',
+    'my' : 'your',
+    'i ' : 'you'
+}
 
 
 def stripPunctuation(sentence):
@@ -79,8 +95,13 @@ def respond(sentence):
     for regex, responseOptions in templates:
         phrase = re.search(regex, sentence)
         if phrase is not None:
+            phrase = phrase.group(numGroups(phrase))
             respond = random.choice(responseOptions)
-            respond = respond.replace("INSERT", phrase.group(numGroups(phrase)))
+            for firstPerson, secondPerson in flip.items():
+                #if re.search(firstPerson, phrase) is not None:
+
+                phrase = phrase.replace(firstPerson, secondPerson)
+            respond = respond.replace("INSERT", phrase)
             return respond
 
 
