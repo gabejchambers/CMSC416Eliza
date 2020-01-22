@@ -19,7 +19,7 @@ templates = [
         ]
     ],#end I 
     #my
-    [r'.*?\b[M|m]y\s(.*\b)',
+    [r'.*?\bmy\s(.*\b)',
         #responses:
         [
             'Why do you think your INSERT?',
@@ -36,6 +36,16 @@ templates = [
             "What is it about INSERT that makes you feel so much?"
         ]
     ],#end one or two words
+    #you NOTE: keep toward bottom
+    [r'.*?\byou\s(.*\b)',
+        #responses:
+        [
+            'We aren\'t here to talk about me.',
+            'I am not interested in talking about myself.',
+            'Why do you feel the need to talk about me?',
+            'Why don\'t we stay focused on you.'
+        ]
+    ],#end you
     #unkown, catchall, etc
     [r'.*?',
         [
@@ -47,13 +57,16 @@ templates = [
 
 
 #dictionary of personal pronouns and first person common verbs to flip to second person in response:
-#TODO: must check split() tokens against this, right now if these are in the middle of a word it fucks it
-    #i.e. parameter -> parareeter SMH
 flip = {
+    #first person -> second person
     'am' : 'are',
     'my' : 'your',
     'i' : 'you',
-    'me' : 'you'
+    'me' : 'you',
+    #second person -> first person:
+    'you' : 'me',
+    'are' : 'am',
+    'your' : 'my'
 }
 
 
