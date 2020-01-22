@@ -10,7 +10,11 @@ import re
 #looking for personal pronouns seems key.
 def findSentenceTemplate(sentence):
     if re.search(r'(\bI\s)(?!.*\1)(.*?)$', sentence) is not None:
+        #i-length = 
+    #if i-phrase shoerter than my phrase
         return IPhrase(sentence)
+    #else: ie if my-prase is longer
+        #return myPrase(sentence)
     return "unknown"
 
 
