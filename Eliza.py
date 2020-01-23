@@ -9,7 +9,7 @@ templates = [
             'Tell me more about how you were INSERT.',
             'Why do you think you were INSERT?'
         ]
-    ],#end I 
+    ],
     #I
     [r'(\bi\s)(?!.*\1)(.*?)$',
         #responses:
@@ -17,7 +17,7 @@ templates = [
             'Tell me more about how you INSERT.',
             'Why do you think you INSERT?'
         ]
-    ],#end I 
+    ],
     #my
     [r'.*?\bmy\s(.*\b)',
         #responses:
@@ -26,16 +26,43 @@ templates = [
             'Why is it so important to you that your INSERT?',
             'How does it make you feel that your INSERT?'
         ]
-    ],#end my
+    ],
+    #she
+    [r'.*?\bshe\s(.*\b)',
+        #responses:
+        [
+            'How does it make you feel that she INSERT?',
+            'Why do you think she INSERT?',
+            'Can you control how she INSERT?'
+        ]
+    ],
+    #he
+    [r'.*?\bhe\s(.*\b)',
+        #responses:
+        [
+            'How does it make you feel that he INSERT?',
+            'Why do you think he INSERT?',
+            'Can you control how he INSERT?'
+        ]
+    ],
+    #they
+    [r'.*?\bthey\s(.*\b)',
+        #responses:
+        [
+            'How does it make you feel that they INSERT?',
+            'Why do you think they INSERT?',
+            'Can you control how they INSERT?'
+        ]
+    ],
     #one or two words (more acurately 1 or 0 spaces)
-    [r'((^[^\s]+$)|(^[^\s]+\s[^\s]*$))',
+    [r'(^[^\s]+\s[^\s]*$|^[^\s]+$)',
         [
             "What is so important about INSERT to you?",
             "Tell me more about INSERT.",
             "Why does INSERT make you feel so much?",
             "What is it about INSERT that makes you feel so much?"
         ]
-    ],#end one or two words
+    ],
     #you NOTE: keep toward bottom
     [r'.*?\byou\s(.*\b)',
         #responses:
@@ -45,14 +72,16 @@ templates = [
             'Why do you feel the need to talk about me?',
             'Why don\'t we stay focused on you.'
         ]
-    ],#end you
+    ],
     #unkown, catchall, etc
     [r'.*?',
         [
             "I don't quite understand, could you rephrase that?",
-            "I don't follow, could you explain a little more simply?"
+            "I don't follow, could you explain a little differently?",
+            "Lets talk about you.",
+            "That is interesting, but lets keep the topic on you"
         ]
-    ]#end catch all
+    ]
 ]#end list
 
 
@@ -64,7 +93,7 @@ flip = {
     'i' : 'you',
     'me' : 'you',
     #second person -> first person:
-    'you' : 'me',
+    'you' : 'me',#this one is annoying. 'you' can go to 'me' or 'I'
     'are' : 'am',
     'your' : 'my'
 }
@@ -111,7 +140,7 @@ def respond(sentence):
     for regex, responseOptions in templates:
         phrase = re.search(regex, sentence)
         if phrase is not None:
-            phrase = phrase.group(numGroups(phrase))
+            phrase = phrase.group((numGroups(phrase)))#problem line for length 1 strings
             respond = random.choice(responseOptions)
             tokens = re.split(r'\s+', phrase)
             for index, token in enumerate(tokens):
