@@ -1,6 +1,14 @@
+#Gabe Chambers - V00774588
+#cmsc 416 -- NLP
+#Project 1: Eliza
+#summary: immitates a therapist session. takes your input to talk back to you.
 import re, random
 
 
+#a data structure to store possible regex expressions that a response could fit into.
+#if a phrase matches a regex, a random corresponding list of possible responses is chosen.
+#list is searched through top to bottom, giving regex higher in list more weight over lower regex.
+#ex.: sentence with "I was" is checked before sentences with simply "I"
 templates = [
     #Family members
         #regex looks to match any instance of dad, mom, etc. family memober
@@ -13,6 +21,7 @@ templates = [
         ]
     ],
     #I was
+    #regex puts all words AFTER the LAST INSTANCE of "i was" into the final group of the token
     [r'(\bi\swas\s)(?!.*\1)(.*?)$',
         #responses:
         [
@@ -20,7 +29,9 @@ templates = [
             'Why do you think you were INSERT?'
         ]
     ],
-    #Yes, no, and I am. naturally come up a lot and the one word template below is very awkward with these.
+    #Yes, no, and I am. 
+    # naturally come up a lot and the one word template below is very awkward with these.
+    #matches to lines which are solely "yes", "no", or "i am"
     [r'^(no|yes|i\sam)$',
         [
             'You seem very sure.',
@@ -30,6 +41,8 @@ templates = [
         ]
     ],
     #I
+    #regex uses negative lookahead (second group) to identify the LAST clause of a sentence that begins with an "I"
+    #everything after the last "I" is used (in the third group) to generate responses
     [r'(\bi\s)(?!.*\1)(.*?)$',
         #responses:
         [
@@ -38,6 +51,7 @@ templates = [
         ]
     ],
     #my
+    #regex searches for any instance of "my" and creates a group of all following words
     [r'.*?\bmy\s(.*\b)',
         #responses:
         [
@@ -47,6 +61,8 @@ templates = [
         ]
     ],
     #she
+    #for she, they, and he (the following regex), all basically the same. 
+    #looks for instance of the pronoun and captures following words into a group
     [r'.*?\bshe\s(.*\b)',
         #responses:
         [
@@ -73,7 +89,10 @@ templates = [
             'Can you control how they INSERT?'
         ]
     ],
-    #one or two words (more acurately 1 or 0 spaces)
+    #one or two words
+    #one or two word answers go here. 
+    # even if they dont have certain keywords, the general catch-all responses felt akward with this category.
+    # regex looks is the whole line contains either 0 or exactly 1 space. if so, puts the whole thing into group.
     [r'(^[^\s]+\s[^\s]*$|^[^\s]+$)',
         [
             "What is so important about INSERT to you?",
@@ -82,7 +101,9 @@ templates = [
             "What is it about INSERT that makes you feel so much?"
         ]
     ],
-    #you NOTE: keep toward bottom
+    #you 
+    #for when the person uses no other keywords, so is most likely talking about Eliza.
+    #regex puts into group everything after the "you"
     [r'.*?\byou\s(.*\b)',
         #responses:
         [
@@ -93,6 +114,7 @@ templates = [
         ]
     ],
     #unkown, catchall, etc
+    #for when the input does not match any of the above templates
     [r'.*?',
         [
             "I don't quite understand, could you rephrase that?",
@@ -104,7 +126,12 @@ templates = [
 ]#end list
 
 
-#dictionary of personal pronouns and first person common verbs to flip to second person in response:
+
+#dictionary (python hash table) of personal pronouns and irregular verbs
+# taken from input to switch from either [first to second person] or [second to first person]
+#used to flip captured phrases from [user input] into [Eliza output]
+#ex input: "I want to run from MY past."
+#ex output with flipped pronouns: "Why do you want to run from YOUR past?"
 flip = {
     #first person -> second person
     'am' : 'are',
@@ -112,13 +139,18 @@ flip = {
     'i' : 'you',
     'me' : 'you',
     #second person -> first person:
-    'you' : 'me',#this one is annoying. 'you' can go to 'me' or 'I'
+    'you' : 'me',#this one is annoying. 'you' can go to 'me' or 'I'. decided 'me' was more common.
     'are' : 'am',
     'your' : 'my'
 }
 
 
+#function is run on user input to strip all punctuation from end of input making it easier to regex
+#strips all trailing punctuation to allow for elipses (...) or other multi-punctuation emphasis (ex: !!!!)
+#leaves punctuation in middle as it can be part of name etc
 def stripPunctuation(sentence):
+    #regex logic: (...) group allows for entire sentence.
+    #[^...]+$ says: at end of line, if there are one or more symbol characters, do not include in the group
     if re.search(r'(.*?)[^a-zA-Z\d\s:]+$', sentence) is not None:
         stripped = re.search(r'(.*?)[^a-zA-Z\d\s:]+$', sentence)
         return stripped.group(1)
@@ -126,21 +158,25 @@ def stripPunctuation(sentence):
 
 
 
+#simple function uses native python .lower() to lowercase entire string for easier regex.
 def toLower(sentence):
     return sentence.lower()
 
 
-
+#function formats sentence for easier regex. 
+# uses two functions above to strip punctuation and put to lowercase
 def formatSentence(sentence):
     return stripPunctuation(toLower(str(sentence)))
 
 
 
 #finds person's name, where given alone or in a sentence.
+#only used at beginning of conversation.
+#takes in the input given for the name phrase and outputs just the name.
 def extractName(name):
     name = stripPunctuation(name)
     if re.search(r'\b[i|I][s|S]\b', name) is not None: #finds incetances of the word "is"
-        name = re.search(r'\b[i|I][s|S]\b\s(.*?)$', name) #assigns name to string following is ex: my name is Rob -> Rob
+        name = re.search(r'\b[i|I][s|S]\b\s(.*?)$', name) #assigns name to string following "is" ex: my name is Rob -> Rob
         return name.group(1)
     elif re.search(r'\bam\b', name) is not None: #finds incetances of the word "am"
         name = re.search(r'\bam\b\s(.*?)$', name) #assigns name to string following am ex: I am Rob -> Rob
@@ -149,12 +185,18 @@ def extractName(name):
 
 
 
-#returns num of groups a token has bc they confuse me 
+#returns num of groups a token has
 def numGroups(token):
     return len(token.groups())
 
 
-
+#Generating the response based on user input is done here
+#takes in input
+#finds the regex in "templates" data structure that matches it.
+#all regex set up so that the last group is the one which should be pasted into the responses.
+#takes that group and checks if any of the words in the "flip" dictionary should be swapped out
+#pastes the refined user phrase into instance of "INSERT" in the template sentence
+#returns the final response
 def respond(sentence):
     for regex, responseOptions in templates:
         phrase = re.search(regex, sentence)
@@ -172,22 +214,28 @@ def respond(sentence):
 
 
 
-def askName(): #need parse this in case they say ex 'my name is Rob' isntead of just 'Rob'
+#function to ask user name. only used once at beginning of conversation
+def askName():
     print("Hi, I am Eliza, a psychotherapist. What is your name?")
 
 
-
+#salutations to user and prompts for first response. only happens at beginning of convo
 def initiateConversation(name):
     print("Nice to meet you " + str(name) + ". What can I help you with today?")
 
 
 
 #initial set up
+#asking and getting name happen here
 askName()
 name = input()
 name = extractName(name)
 initiateConversation(name)
 
+
+#conversation loop. 
+#waits for user input, generates a response, and prints it to the console
+#listens for keyword "stop" to break loop
 while True:
     userInput = input()
     #to exit loop:
