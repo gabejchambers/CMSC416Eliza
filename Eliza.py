@@ -3,6 +3,7 @@ import re, random
 
 templates = [
     #Family members
+        #regex looks to match any instance of dad, mom, etc. family memober
         [r'.*?(\bdad\b|\bmom\b|\bsister\b|\bbrother\b|\bfather\b|\bmother\b|\baunt\b|\buncle\b|\bgrandma\b|\bgrandpa\b|\bgrandmother\b|\bgrandfather\b).*?',
         #responses:
         [
