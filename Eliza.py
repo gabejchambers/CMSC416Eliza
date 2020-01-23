@@ -2,12 +2,30 @@ import re, random
 
 
 templates = [
+    #Family members
+        [r'.*?(\bdad\b|\bmom\b|\bsister\b|\bbrother\b|\bfather\b|\bmother\b|\baunt\b|\buncle\b|\bgrandma\b|\bgrandpa\b|\bgrandmother\b|\bgrandfather\b).*?',
+        #responses:
+        [
+            'Tell me more about your family.',
+            'What are some of your favorite memories about your family?',
+            'Are you close with your family?'
+        ]
+    ],
     #I was
     [r'(\bi\swas\s)(?!.*\1)(.*?)$',
         #responses:
         [
             'Tell me more about how you were INSERT.',
             'Why do you think you were INSERT?'
+        ]
+    ],
+    #Yes, no, and I am. naturally come up a lot and the one word template below is very awkward with these.
+    [r'^(no|yes|i\sam)$',
+        [
+            'You seem very sure.',
+            'Why is it so clear to you?',
+            'Why was that such a fast conclusion to come to?',
+            'Are you happy with that? Why or why not?'
         ]
     ],
     #I
